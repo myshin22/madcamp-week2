@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:sqflite/sqflite.dart';
 import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   runApp(MyApp());
@@ -116,6 +116,7 @@ class _FeedScreenState extends State<FeedScreen>{
     //가져온 데이터를 FeedItem으로 변환하여 feedItems 리스트에 저장
     //setState() 호출하여 UI 갱신
   }
+
   @override
   void initState(){
     super.initState();
@@ -129,19 +130,19 @@ class _FeedScreenState extends State<FeedScreen>{
       body: Column(
         children: [
           Padding(
-              padding: EdgeInsets.all(16.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText:'어느 지역 맛집을 알고 싶으세요?',
-                  prefixIcon:Icon(Icons.search),
-                ),
-                onChanged: (value){
-                  //검색어 입력하며 어떻게 됨?
-                },
-                onSubmitted: (value){
-                  //검색어 제출하면 어떻게 됨?
-                },
+            padding: EdgeInsets.all(16.0),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText:'어느 지역 맛집을 알고 싶으세요?',
+                prefixIcon:Icon(Icons.search),
               ),
+              onChanged: (value){
+                //검색어 입력하며 어떻게 됨?
+              },
+              onSubmitted: (value){
+                //검색어 제출하면 어떻게 됨?
+              },
+            ),
           ),
           Expanded(
             child: ListView.builder(
@@ -195,33 +196,40 @@ class AddScreen extends StatelessWidget {
   }
 
   void openGallery(BuildContext context) async {
-    final picker = ImagePicker();
-    final List<XFile> selectedImages = [];
+    List<Asset> selectedImages = [];
 
-    for (int i = 0; i < 5; i++) {
-      XFile? image = await picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 800,
-        maxHeight: 800,
-        imageQuality: 80,
+    try {
+      selectedImages = await MultiImagePicker.pickImages(
+        maxImages: 5,
+        enableCamera: true,
       );
-
-      if (image != null) {
-        selectedImages.add(image);
-      } else {
-        break;
-      }
+    } catch (e) {
+      //예외?
     }
 
     if (selectedImages.isNotEmpty) {
+      List<XFile> xFiles = await Future.wait(
+        selectedImages.map((asset) => assetToFile(asset)),
+      );
+
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => GetPictureScreen(selectedImages),
+          builder: (context) => GetPictureScreen(xFiles),
         ),
       );
     }
   }
+}
+
+Future<XFile> assetToFile(Asset asset) async {
+  final byteData = await asset.getByteData();
+  final tempDirectory = await getTemporaryDirectory();
+  final tempPath = '${tempDirectory.path}/${asset.name}';
+  final tempFile = File(tempPath);
+  await tempFile.writeAsBytes(byteData.buffer.asUint8List());
+
+  return XFile(tempPath);
 }
 
 class GetPictureScreen extends StatelessWidget {
@@ -248,8 +256,8 @@ class GetPictureScreen extends StatelessWidget {
         itemBuilder: (context, index) {
           return Column(
             children: [
-              Image.file(
-                File(selectedImages[index].path),
+              Image.memory(
+                File(selectedImages[index].path).readAsBytesSync(),
                 height: 200,
                 width: 200,
                 fit: BoxFit.cover,
@@ -257,7 +265,7 @@ class GetPictureScreen extends StatelessWidget {
               SizedBox(height: 8),
               TextField(
                 decoration: InputDecoration(
-                hintText: '문구를 입력하세요',
+                  hintText: '이 식당은 어떤 점이 좋았나요?',
                 ),
               ),
               SizedBox(height: 16),
