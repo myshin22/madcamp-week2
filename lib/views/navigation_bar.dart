@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:madcamp_week_2/views/bookmark_screen.dart';
+import 'package:madcamp_week_2/views/feed_screen.dart';
+import 'package:madcamp_week_2/views/profile_screen.dart';
+import 'package:madcamp_week_2/views/search_screen.dart';
 
 class Navigation extends StatefulWidget {
   const Navigation({super.key});
@@ -26,51 +30,55 @@ class _NavigationState extends State<Navigation> {
         selectedIndex: currentPageIndex,
         destinations: <Widget>[
           NavigationDestination(
-            icon: const Icon(Icons.search),
-            selectedIcon: Icon(Icons.search,
+            icon: const Icon(Icons.search_outlined),
+            selectedIcon: Icon(Icons.search_outlined,
                 color: Theme.of(context).colorScheme.primary),
             label: '검색',
           ),
           NavigationDestination(
             icon: const Icon(Icons.people_alt_outlined),
-            selectedIcon: Icon(Icons.people,
+            selectedIcon: Icon(Icons.people_alt_outlined,
                 color: Theme.of(context).colorScheme.primary),
             label: '친구',
           ),
           NavigationDestination(
               icon: const Icon(Icons.bookmark_outline),
-              selectedIcon: Icon(Icons.bookmark,
+              selectedIcon: Icon(Icons.bookmark_outline,
                   color: Theme.of(context).colorScheme.primary),
               label: '저장'),
           NavigationDestination(
             icon: const Icon(Icons.account_circle_outlined),
-            selectedIcon: Icon(Icons.person,
+            selectedIcon: Icon(Icons.account_circle_outlined,
                 color: Theme.of(context).colorScheme.primary),
             label: '프로필',
           ),
         ],
       ),
       body: <Widget>[
-        Container(
-          color: Colors.red,
-          alignment: Alignment.center,
-          child: const Text('Page 1'),
-        ),
-        Container(
-          color: Colors.green,
-          alignment: Alignment.center,
-          child: const Text('Page 2'),
-        ),
-        Container(
-          color: Colors.blue,
-          alignment: Alignment.center,
-          child: const Text('Page 3'),
-        ),
-        Container(
-          color: Colors.blue,
-          alignment: Alignment.center,
-          child: const Text('Page 4'),
-        ),
+        SearchScreen(),
+        FeedScreen(),
+        BookmarkScreen(),
+        ProfileScreen()
+        // Container(
+        //   color: Colors.red,
+        //   alignment: Alignment.center,
+        //   child: const Text('Page 1'),
+        // ),
+        // Container(
+        //   color: Colors.green,
+        //   alignment: Alignment.center,
+        //   child: const Text('Page 2'),
+        // ),
+        // Container(
+        //   color: Colors.blue,
+        //   alignment: Alignment.center,
+        //   child: const Text('Page 3'),
+        // ),
+        // Container(
+        //   color: Colors.blue,
+        //   alignment: Alignment.center,
+        //   child: const Text('Page 4'),
+        // ),
       ][currentPageIndex],
     );
   }

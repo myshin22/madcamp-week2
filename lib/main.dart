@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:madcamp_week_2/views/navigation.dart';
+import 'package:madcamp_week_2/views/navigation_bar.dart';
 
 void main() {
   runApp(const MyApp());
