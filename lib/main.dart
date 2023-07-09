@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:draggable_bottom_sheet/draggable_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -130,50 +131,6 @@ class SettingsScreen extends StatelessWidget {
 }
 
 class SearchScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: null,
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              decoration: InputDecoration(
-                hintText:'어느 지역 맛집을 알고 싶으세요?',
-                prefixIcon: Icon(Icons.search),
-              ),
-              onChanged: (value) {
-                // 입력된 검색어 처리
-              },
-              onSubmitted: (value) {
-                // 엔터 키를 눌러 검색어 제출
-              },
-            ),
-            SizedBox(height: 16.0),
-            Text('map') //여기에 지도 넣기
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class FeedItem{
-  final String username;
-  final String profileImageUrl;
-  final String imageUrl;
-  final String caption;
-
-  FeedItem(
-      {required this.username,
-      required this.profileImageUrl,
-      required this.imageUrl,
-      required this.caption});
-}
-
-
-class FeedScreen extends StatelessWidget {
   final List<FeedItem> feedItems = [
     FeedItem(
       username: 'user1',
@@ -183,6 +140,100 @@ class FeedScreen extends StatelessWidget {
     ),
     // Add more feed items as needed
   ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: null,
+      body: DraggableBottomSheet(
+        minExtent: 150,
+        useSafeArea: false,
+        curve: Curves.easeIn,
+        previewWidget: _previewWidget(feedItems),
+        expandedWidget: _expandedWidget(feedItems),
+        backgroundWidget: _backgroundWidget(),
+        maxExtent: MediaQuery.of(context).size.height,
+        onDragging: (pos) {},
+      ),
+    );
+  }
+
+  Widget _backgroundWidget() {
+    return Column(
+      children: [
+        // 지도 위젯 추가
+        Text('지도'),
+      ],
+    );
+  }
+
+  Widget _previewWidget(List<FeedItem> feedItems) {
+    final feedItem = feedItems.first; // 첫 번째 FeedItem만 보이도록 설정
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: const BoxDecoration(
+        color: Colors.pink,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      child: Column(
+        children: <Widget>[
+          Container(
+            width: 40,
+            height: 6,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Drag Me',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 16),
+          Container(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Text(
+                  feedItem.username,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 8.0),
+                Image.asset(
+                  feedItem.imageUrl,
+                  fit: BoxFit.cover,
+                ),
+                SizedBox(height: 8.0),
+                Text(feedItem.caption),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _expandedWidget(List<FeedItem> feedItems) {
+    return FeedScreen(feedItems: feedItems);
+  }
+}
+
+
+class FeedScreen extends StatelessWidget {
+  final List<FeedItem> feedItems;
+
+  FeedScreen({required this.feedItems});
 
   @override
   Widget build(BuildContext context) {
@@ -227,6 +278,20 @@ class FeedScreen extends StatelessWidget {
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
     );
   }
+}
+
+class FeedItem {
+  final String username;
+  final String profileImageUrl;
+  final String imageUrl;
+  final String caption;
+
+  FeedItem({
+    required this.username,
+    required this.profileImageUrl,
+    required this.imageUrl,
+    required this.caption,
+  });
 }
 
 class AddScreen extends StatefulWidget {
