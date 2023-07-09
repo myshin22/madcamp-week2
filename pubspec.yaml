@@ -34,6 +34,8 @@ dependencies:
   sqflite: ^2.0.0
   image_picker: ^0.8.4+4
   multi_image_picker: ^4.8.1
+  image_cropper: ^1.4.1
+  carousel_slider: ^4.0.0
 
 
   # The following adds the Cupertino Icons font to your application.

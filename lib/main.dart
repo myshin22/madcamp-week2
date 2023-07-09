@@ -30,6 +30,10 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: '냠냠',
+      theme: ThemeData(
+        primarySwatch: Colors.grey,
+      ),
       home: Scaffold(
         appBar: null,
         body: _screens[_selectedIndex],
@@ -56,6 +60,70 @@ class _MyAppState extends State<MyApp> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class ProfileScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Profile Screen'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsScreen()),
+              );
+            },
+          ),
+        ],
+      ),
+      body: Center(
+        child: Text('Profile Screen'),
+      ),
+    );
+  }
+}
+
+class SettingsScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('설정'),
+      ),
+      body: ListView(
+        children: <Widget>[
+          ListTile(
+            title: Text('연결관리'),
+          ),
+          ListTile(
+            title: Text('네이버 지도 연결'),
+            onTap: () {
+              // 항목 1이 선택되었을 때의 코드
+            },
+          ),
+          ListTile(
+            title: Text('친구추가'),
+          ),
+          ListTile(
+            title: Text('연락처로 추가하기'),
+            onTap: () {
+              // 친구 1이 선택되었을 때의 코드
+            },
+          ),
+          ListTile(
+            title: Text('초대장 보내기'),
+            onTap: () {
+              // 친구 2가 선택되었을 때의 코드
+            },
+          ),
+        ],
       ),
     );
   }
@@ -166,8 +234,8 @@ class AddScreen extends StatefulWidget {
   _AddScreenState createState() => _AddScreenState();
 }
 
-class _AddScreenState extends State<AddScreen> {
-  List<String> placeList = [
+class PlaceSelectScreen extends StatelessWidget {
+  final List<String> placeList = [
     '장소1 - 주소1',
     '장소2 - 주소2',
     '장소3 - 주소3',
@@ -180,65 +248,29 @@ class _AddScreenState extends State<AddScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('내 맛집 리스트'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  String name = '';
-                  String address = '';
-                  return AlertDialog(
-                    title: Text('장소 추가'),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextField(
-                          onChanged: (value) {
-                            name = value;
-                          },
-                          decoration: InputDecoration(hintText: '장소 이름'),
-                        ),
-                        TextField(
-                          onChanged: (value) {
-                            address = value;
-                          },
-                          decoration: InputDecoration(hintText: '주소'),
-                        )
-                      ],
-                    ),
-                    actions: <Widget>[
-                      TextButton(
-                        child: Text('저장'),
-                        onPressed: () {
-                          setState(() {
-                            placeList.add('$name - $address');
-                          });
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-          ),
-        ],
       ),
       body: ListView.builder(
-          itemCount: placeList.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(placeList[index]),
-              onTap: () {
-                // 여기에 특정 장소를 눌렀을 때의 로직을 추가하세요
-                print('${placeList[index]}가 선택되었습니다.');
-              },
-            );
-          }),
+        itemCount: placeList.length,
+        itemBuilder: (context, index) {
+          final place = placeList[index].split(' - ')[0]; //장소 정보만 가져오기
+          final address = placeList[index].split(' - ')[1]; //주소 정보만
+          return ListTile(
+            title: Text(place),
+            subtitle: Text(address),
+            onTap: () {
+              Navigator.pop(context, place);
+            },
+          );
+        },
+      ),
     );
   }
+}
+
+class _AddScreenState extends State<AddScreen> {
+  String? location;
+  String description = '';
+  List<XFile>? selectedImages; //선택한 이미지 목록
 
   Future<void> openGallery(BuildContext context) async {
     try {
@@ -249,138 +281,81 @@ class _AddScreenState extends State<AddScreen> {
       );
 
       if (resultList != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => GetPictureScreen(resultList),
-          ),
-        );
+        setState(() {
+          selectedImages = resultList;
+        });
       }
     } catch (e) {
       // 예외 처리
     }
   }
-}
-
-class GetPictureScreen extends StatefulWidget {
-  final List<XFile> images;
-
-  GetPictureScreen(this.images);
-
-  @override
-  _GetPictureScreenState createState() => _GetPictureScreenState();
-}
-
-class _GetPictureScreenState extends State<GetPictureScreen> {
-  String caption = '';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('글쓰기'),
-        actions: [
+        actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.upload_sharp),
+            icon: Icon(Icons.add),
             onPressed: () {
-              //upload 버튼을 누르면 서버 상에 보낼 수 있도록 코드를 짜야 돼
+              //서버 상에 업로드 되도록 해야 함.
             },
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: PageView.builder(
-              itemCount: widget.images.length,
-              itemBuilder: (context, index) {
-                return Image.file(
-                  File(widget.images[index].path),
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                );
-              },
+      body: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Column(
+          children: <Widget>[
+            AspectRatio(
+              aspectRatio: 1,
+              child: selectedImages != null && selectedImages!.isNotEmpty
+                  ? PageView.builder(
+                      itemCount: selectedImages!.length,
+                      itemBuilder: (context, index) {
+                        return Image.file(
+                          File(selectedImages![index].path),
+                          fit: BoxFit.cover,
+                        );
+                      },
+                    )
+                  : ElevatedButton(
+                      child: Icon(Icons.image, size: 128),
+                      onPressed: () {
+                        openGallery(context);
+                      },
+                    ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextFormField(
-              decoration: InputDecoration(
-                labelText: 'Add caption',
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  caption = value;
+            ElevatedButton.icon(
+              icon: Icon(Icons.location_on),
+              label: Text(location ?? '맛집 선택'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PlaceSelectScreen()),
+                ).then((selectedLoction) {
+                  setState(() {
+                    location = selectedLoction;
+                  });
                 });
               },
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class ProfileScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Profile Screen'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SettingsScreen()),
-              );
-            },
-          ),
-        ],
-      ),
-      body: Center(
-        child: Text('Profile Screen'),
-      ),
-    );
-  }
-}
-
-class SettingsScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('설정'),
-      ),
-      body: ListView(
-        children: <Widget>[
-          ListTile(
-            title: Text('연결관리'),
-          ),
-          ListTile(
-            title: Text('네이버 지도 연결'),
-            onTap: () {
-              // 항목 1이 선택되었을 때의 코드
-            },
-          ),
-          ListTile(
-            title: Text('친구추가'),
-          ),
-          ListTile(
-            title: Text('연락처로 추가하기'),
-            onTap: () {
-              // 친구 1이 선택되었을 때의 코드
-            },
-          ),
-          ListTile(
-            title: Text('초대장 보내기'),
-            onTap: () {
-              // 친구 2가 선택되었을 때의 코드
-            },
-          ),
-        ],
+            TextFormField(
+              decoration: InputDecoration(
+                hintText: '이 맛집은 어떤 점이 좋았나요?',
+                border: OutlineInputBorder(),
+              ),
+              minLines: 3,
+              maxLines: 5,
+              onChanged: (value) {
+                setState(() {
+                  description = value;
+                });
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
