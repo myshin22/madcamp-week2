@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:week2/page/login.page.dart';
+import 'package:week2/page/profile.page.dart';
 import 'package:week2/page/sample.page.dart';
 
 class NavigationPage extends StatefulWidget {
@@ -13,6 +15,12 @@ class _NavigationPageState extends State<NavigationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final developerDestination = NavigationDestination(
+      icon: const Icon(Icons.developer_mode_outlined),
+      selectedIcon: Icon(Icons.developer_mode,
+          color: Theme.of(context).colorScheme.primary),
+      label: '개발',
+    );
     final destinations = [
       NavigationDestination(
         icon: const Icon(Icons.search),
@@ -36,12 +44,16 @@ class _NavigationPageState extends State<NavigationPage> {
             color: Theme.of(context).colorScheme.primary),
         label: '프로필',
       ),
+      developerDestination,
+      developerDestination
     ];
     final body = [
       const SamplePage(),
       const SamplePage(),
       const SamplePage(),
-      const SamplePage()
+      const SamplePage(),
+      const LoginPage(),
+      const ProfilePage(),
     ];
     return Scaffold(
       bottomNavigationBar: NavigationBar(
