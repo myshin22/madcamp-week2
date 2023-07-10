@@ -14,3 +14,10 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+## IDE Settings for test
+
+https://console.cloud.google.com/apis/dashboard?project=yumyum-392410
+
+- Edit configuration > Additional Run Args : --web-port=5000
+- Copy and paste upload-keystore.jks to android > app
