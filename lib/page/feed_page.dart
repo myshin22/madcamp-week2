@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:week2/api/mock_feed_item.dart';
 import 'package:week2/model/feed_item.model.dart';
+import 'package:week2/page/search_page.dart';
 
 class FeedPage extends StatefulWidget {
   const FeedPage({super.key});
@@ -33,6 +34,22 @@ class _FeedPageState extends State<FeedPage> {
                   backgroundImage: NetworkImage(feedItem.profileImageUrl),
                 ),
                 title: Text(feedItem.username),
+                // subtitle: Text(feedItem.location),
+                trailing: PopupMenuButton(
+                  itemBuilder: (BuildContext context) {
+                    return <PopupMenuEntry>[
+                      PopupMenuItem(
+                        child: Text('저장'),
+                        value: 'save',
+                      ),
+                    ];
+                  },
+                  onSelected: (value) {
+                    if (value == 'save') {
+                      //어디에 어떻게 저장할겨?
+                    }
+                  },
+                ),
               ),
               Container(
                 width: MediaQuery.of(context).size.width,
@@ -48,6 +65,12 @@ class _FeedPageState extends State<FeedPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SearchPage(),
+            ),
+          );
           // Navigator.push(
           //   context,
           //   MaterialPageRoute(

@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:week2/api/google_auth.dart';
 import 'package:week2/page/profile_settings_page.dart';
 
@@ -14,7 +17,14 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final double coverHeight = 240;
   final double profileHeight = 144;
+  final ImagePicker _picker = ImagePicker();
+  XFile? _imageFile;
   GoogleSignInAccount? user;
+
+  void _openImagePicker() async {
+    final XFile? selectedImage =
+        await _picker.pickImage(source: ImageSource.gallery);
+  }
 
   @override
   void initState() {
@@ -61,11 +71,21 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       );
 
-  Widget buildProfileImage() => CircleAvatar(
+  Widget buildProfileImage() {
+    return GestureDetector(
+      onTap: _openImagePicker,
+      child: CircleAvatar(
         radius: profileHeight / 2,
         backgroundColor: Colors.grey,
-        backgroundImage: NetworkImage(user?.photoUrl ?? ""),
-      );
+        backgroundImage: _imageFile != null
+            ? FileImage(File(_imageFile!.path)) as ImageProvider<Object>?
+            : (user?.photoUrl != null
+                ? NetworkImage(user!.photoUrl as String)
+                    as ImageProvider<Object>?
+                : AssetImage('assets/default_image.png')),
+      ),
+    );
+  }
 
   Widget buildTop() {
     final top = coverHeight - profileHeight / 2;
@@ -163,9 +183,9 @@ class NumbersWidget extends StatelessWidget {
   }
 
   Widget buildDivider() => Container(
-        height: 32,
-        child: VerticalDivider(),
-      );
+    height: 32,
+    child: VerticalDivider(),
+  );
 
   Widget buildButton({required String text, required int value}) =>
       MaterialButton(
@@ -219,7 +239,7 @@ class ExplanationWidget extends StatelessWidget {
   }
 
   Widget buildDivider() => Container(
-        height: 32,
-        child: VerticalDivider(),
-      );
+    height: 32,
+    child: VerticalDivider(),
+  );
 }
