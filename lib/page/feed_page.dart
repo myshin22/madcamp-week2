@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:week2/api/mock_feed_item.dart';
 import 'package:week2/model/feed_item.model.dart';
+import 'package:week2/page/saved_items.dart';
 import 'package:week2/page/search_page.dart';
 
 class FeedPage extends StatefulWidget {
@@ -34,7 +36,12 @@ class _FeedPageState extends State<FeedPage> {
                   backgroundImage: NetworkImage(feedItem.profileImageUrl),
                 ),
                 title: Text(feedItem.username),
-                // subtitle: Text(feedItem.location),
+                subtitle: InkWell(
+                  onTap: () {
+                    //위치를 클릭하면 지도 위에 해당 위치가 표시되게 바꿔야 함
+                  },
+                  child: Text(feedItem.location),
+                ),
                 trailing: PopupMenuButton(
                   itemBuilder: (BuildContext context) {
                     return <PopupMenuEntry>[
@@ -46,7 +53,8 @@ class _FeedPageState extends State<FeedPage> {
                   },
                   onSelected: (value) {
                     if (value == 'save') {
-                      //어디에 어떻게 저장할겨?
+                      final savedItems = context.read<SavedItems>();
+                      savedItems.addItem(feedItem.location);
                     }
                   },
                 ),

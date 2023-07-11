@@ -3,7 +3,6 @@ import 'package:week2/page/feed_add_page.dart';
 import 'package:week2/page/feed_page.dart';
 import 'package:week2/page/login_page.dart';
 import 'package:week2/page/profile_page.dart';
-import 'package:week2/page/sample_page.dart';
 import 'package:week2/page/search_page.dart';
 
 class NavigationPage extends StatefulWidget {
@@ -27,15 +26,15 @@ class _NavigationPageState extends State<NavigationPage> {
     final destinations = [
       NavigationDestination(
         icon: const Icon(Icons.search),
-        selectedIcon:
-            Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
-        label: '탐색',
+        selectedIcon: Icon(Icons.location_on,
+            color: Theme.of(context).colorScheme.primary),
+        label: '주변',
       ),
       NavigationDestination(
           icon: const Icon(Icons.bookmark_outline),
-          selectedIcon: Icon(Icons.bookmark,
-              color: Theme.of(context).colorScheme.primary),
-          label: '저장'),
+          selectedIcon:
+              Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
+          label: '탐색'),
       NavigationDestination(
           icon: const Icon(Icons.add_box_outlined),
           selectedIcon:
@@ -52,9 +51,9 @@ class _NavigationPageState extends State<NavigationPage> {
     ];
     final body = [
       const SearchPage(),
-      const SamplePage(),
+      const FeedPage(),
       const FeedAddPage(),
-      const ProfilePage(),
+      const NewProfilePage(),
       const LoginPage(),
       const FeedPage(),
     ];

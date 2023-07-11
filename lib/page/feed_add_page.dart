@@ -22,9 +22,11 @@ class _FeedAddPageState extends State<FeedAddPage> {
         maxHeight: 1080,
         imageQuality: 90,
       );
-      setState(() {
-        selectedImages = resultList;
-      });
+      if (resultList != null) {
+        setState(() {
+          selectedImages = resultList;
+        });
+      }
     } catch (e) {
       // 예외 처리
     }
@@ -37,64 +39,66 @@ class _FeedAddPageState extends State<FeedAddPage> {
         title: Text('글쓰기'),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.add),
+            icon: Icon(Icons.upload_outlined),
             onPressed: () {
               //서버 상에 업로드 되도록 해야 함.
             },
           ),
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Column(
-          children: <Widget>[
-            AspectRatio(
-              aspectRatio: 1,
-              child: selectedImages != null && selectedImages!.isNotEmpty
-                  ? PageView.builder(
-                      itemCount: selectedImages!.length,
-                      itemBuilder: (context, index) {
-                        return Image.file(
-                          File(selectedImages![index].path),
-                          fit: BoxFit.cover,
-                        );
-                      },
-                    )
-                  : ElevatedButton(
-                      child: Icon(Icons.image, size: 128),
-                      onPressed: () {
-                        openGallery(context);
-                      },
-                    ),
-            ),
-            ElevatedButton.icon(
-              icon: Icon(Icons.location_on),
-              label: Text(location ?? '맛집 선택'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => FeedAddPlacePage()),
-                ).then((selectedLoction) {
-                  setState(() {
-                    location = selectedLoction;
-                  });
-                });
-              },
-            ),
-            TextFormField(
-              decoration: InputDecoration(
-                hintText: '이 맛집은 어떤 점이 좋았나요?',
-                border: OutlineInputBorder(),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Column(
+            children: <Widget>[
+              AspectRatio(
+                aspectRatio: 1,
+                child: selectedImages != null && selectedImages!.isNotEmpty
+                    ? PageView.builder(
+                        itemCount: selectedImages!.length,
+                        itemBuilder: (context, index) {
+                          return Image.file(
+                            File(selectedImages![index].path),
+                            fit: BoxFit.cover,
+                          );
+                        },
+                      )
+                    : ElevatedButton(
+                        child: Icon(Icons.image, size: 128),
+                        onPressed: () {
+                          openGallery(context);
+                        },
+                      ),
               ),
-              minLines: 3,
-              maxLines: 5,
-              onChanged: (value) {
-                setState(() {
-                  description = value;
-                });
-              },
-            ),
-          ],
+              ElevatedButton.icon(
+                icon: Icon(Icons.location_on),
+                label: Text(location ?? '맛집 선택'),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => FeedAddPlacePage()),
+                  ).then((selectedLoction) {
+                    setState(() {
+                      location = selectedLoction;
+                    });
+                  });
+                },
+              ),
+              TextFormField(
+                decoration: InputDecoration(
+                  hintText: '이 맛집은 어떤 점이 좋았나요?',
+                  border: OutlineInputBorder(),
+                ),
+                minLines: 3,
+                maxLines: 5,
+                onChanged: (value) {
+                  setState(() {
+                    description = value;
+                  });
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -116,7 +120,15 @@ class FeedAddPlacePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('내 맛집 리스트'),
+        backgroundColor: Colors.transparent,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              //여기 네이버로 넘어가서 즐겨찾기 추가할 수 있도록
+            },
+          ),
+        ],
       ),
       body: ListView.builder(
         itemCount: placeList.length,

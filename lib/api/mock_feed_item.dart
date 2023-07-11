@@ -8,6 +8,7 @@ class MockFeedItem {
       profileImageUrl: MockString.getPersonPhoto(),
       imageUrl: MockString.getFoodPhoto(),
       caption: '아주 그냥 입에서 녹네... 또 가야지',
+      location: '장소1',
     );
   }
 

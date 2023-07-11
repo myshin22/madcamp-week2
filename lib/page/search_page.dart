@@ -93,7 +93,7 @@ class _SearchPageState extends State<SearchPage> {
             const SizedBox(height: 8),
             ListTile(
               leading: CircleAvatar(
-                backgroundImage: AssetImage(feedItem.profileImageUrl),
+                backgroundImage: NetworkImage(feedItem.profileImageUrl),
               ),
               title: Text(feedItem.username),
             ),

@@ -1,19 +1,22 @@
 import 'dart:io';
 
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:week2/api/google_auth.dart';
+import 'package:week2/page/Saved_feed_page.dart';
 import 'package:week2/page/profile_settings_page.dart';
 
-class NewProfilePage extends StatefulWidget {
-  const NewProfilePage({Key? key}) : super(key: key);
+class MyPage extends StatefulWidget {
+  const MyPage({Key? key}) : super(key: key);
 
   @override
-  _NewProfilePageState createState() => _NewProfilePageState();
+  _MyPageState createState() => _MyPageState();
 }
 
-class _NewProfilePageState extends State<NewProfilePage> {
+class _MyPageState extends State<MyPage> {
   final double coverHeight = 240;
   final double profileHeight = 144;
   final ImagePicker _picker = ImagePicker();
@@ -22,12 +25,7 @@ class _NewProfilePageState extends State<NewProfilePage> {
 
   void _openImagePicker() async {
     final XFile? selectedImage =
-        await _picker.pickImage(source: ImageSource.gallery);
-    if (selectedImage != null) {
-      setState(() {
-        _imageFile = selectedImage;
-      });
-    }
+    await _picker.pickImage(source: ImageSource.gallery);
   }
 
   Widget _statisticsOne(String title, int value) {
@@ -49,7 +47,8 @@ class _NewProfilePageState extends State<NewProfilePage> {
     );
   }
 
-  Widget buildCoverImage() => Container(
+  Widget buildCoverImage() =>
+      Container(
         color: Colors.grey,
         child: Image.network(
           'https://images.pexels.com/photos/3186654/pexels-photo-3186654.jpeg',
@@ -68,67 +67,56 @@ class _NewProfilePageState extends State<NewProfilePage> {
         backgroundImage: _imageFile != null
             ? FileImage(File(_imageFile!.path)) as ImageProvider<Object>?
             : (user?.photoUrl != null
-                ? NetworkImage(user!.photoUrl as String)
-                    as ImageProvider<Object>?
-                : null),
+            ? NetworkImage(user!.photoUrl as String)
+        as ImageProvider<Object>?
+            : null),
       ),
     );
   }
 
-  Widget buildSocialIcon(IconData iconData) {
-    return Icon(iconData);
-  }
-
-  Widget NumbersWidget() {
-    // TODO: Implement this widget
-    return Container();
-  }
 
   Widget _menu() {
-    return Column(
-      children: [
-        SizedBox(
-          height: 8,
-        ),
-        Text(user?.displayName ?? user?.email ?? "",
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.w500)),
-        SizedBox(
-          height: 8,
-        ),
-        Text(
-          '파스타를 좋아하는 미식가',
-          style: TextStyle(fontSize: 18, height: 1.4),
-        ),
-        SizedBox(
-          height: 16,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            buildSocialIcon(FontAwesomeIcons.instagram),
-            const SizedBox(
-              width: 12,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 25),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 7),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(3),
+                border: Border.all(
+                  color: const Color(0xffdedede),
+                ),
+              ),
+              child: const Text(
+                'Edit profile',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
-            buildSocialIcon(FontAwesomeIcons.twitter),
-          ],
-        ),
-        SizedBox(
-          height: 8,
-        ),
-        Divider(),
-        SizedBox(
-          height: 8,
-        ),
-        NumbersWidget(),
-        SizedBox(
-          height: 8,
-        ),
-        SizedBox(
-          height: 8,
-        ),
-      ],
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(3),
+              border: Border.all(
+                color: const Color(0xffdedede),
+              ),
+              color: const Color(0xffefefef),
+            ),
+            child: ImageData(IconsPath.addFriend),
+          )
+        ],
+      ),
     );
   }
+
 
   Widget _tabView() {
     return GridView.builder(
@@ -157,37 +145,35 @@ class _NewProfilePageState extends State<NewProfilePage> {
         elevation: 0,
         title: const Text(
           '내 프로필',
-          style: TextStyle(
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 20,
             color: Colors.black,
           ),
         ),
-        actions: [
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ProfileSettingsPage()),
-              );
-            },
-            child: Icon(
-              Icons.settings, // Updated from ImageData(IconsPath.uploadIcon)
-              size: 24,
-            ),
+      ),
+      actions: [
+        GestureDetector(
+          onTap: () {},
+          child: ImageData(
+            IconsPath.uploadIcon,
+            width: 50,
           ),
+        ),
+      ],
+    );
+
+    body:
+    SingleChildScrollView(
+      child: Column(
+        children: [
+          _profile(),
+          _menu(),
+          _tabView(),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            buildCoverImage(),
-            _profile(),
-            _menu(),
-            _tabView(),
-          ],
-        ),
-      ),
+    )
+    ,
     );
   }
 }
