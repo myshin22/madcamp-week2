@@ -142,8 +142,39 @@ class _NewProfilePageState extends State<NewProfilePage> {
         crossAxisSpacing: 1,
       ),
       itemBuilder: (BuildContext context, int index) {
-        return Container(
-          color: Colors.grey,
+        return GestureDetector(
+          onTap: () {
+            print('Item clicked');
+            // TODO: Implement your action here
+          },
+          onLongPress: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text('삭제하시겠습니까?'),
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text('취소'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    TextButton(
+                      child: Text('삭제'),
+                      onPressed: () {
+                        // 여기 아이템 삭제 로직 넣기
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+          child: Container(
+            color: Colors.grey,
+          ),
         );
       },
     );
@@ -168,8 +199,8 @@ class _NewProfilePageState extends State<NewProfilePage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ProfileSettingsPage()),
-              );
+                  MaterialPageRoute(
+                      builder: (context) => ProfileSettingsPage()));
             },
             child: Icon(
               Icons.settings, // Updated from ImageData(IconsPath.uploadIcon)
