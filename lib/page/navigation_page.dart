@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:week2/page/feed_add_page.dart';
 import 'package:week2/page/feed_page.dart';
 import 'package:week2/page/login_page.dart';
 import 'package:week2/page/profile_page.dart';
@@ -47,13 +48,15 @@ class _NavigationPageState extends State<NavigationPage> {
         label: '프로필',
       ),
       developerDestination,
+      developerDestination,
     ];
     final body = [
       const SearchPage(),
-      const FeedPage(),
       const SamplePage(),
+      const FeedAddPage(),
       const ProfilePage(),
       const LoginPage(),
+      const FeedPage(),
     ];
     return Scaffold(
       bottomNavigationBar: NavigationBar(
