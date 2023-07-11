@@ -12,12 +12,32 @@ class SearchScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: null,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Expanded(
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: '검색',
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+            IconButton(
+                icon: Icon(Icons.search),
+                onPressed: () {
+                  //여기 누르면 그냥 입럭한 값과 관련된 위치나 가게 이름으로 이동할 수 있도록 하자
+                }),
+          ],
+        ),
+      ),
       body: DraggableBottomSheet(
         minExtent: 150,
         useSafeArea: false,
         curve: Curves.easeIn,
-        previewWidget: _previewWidget(feedItems),
+        previewWidget: _previewWidget(context),
         expandedWidget: _expandedWidget(feedItems),
         backgroundWidget: _backgroundWidget(),
         maxExtent: MediaQuery.of(context).size.height,
@@ -35,59 +55,39 @@ class SearchScreen extends StatelessWidget {
     );
   }
 
-  Widget _previewWidget(List<FeedItem> feedItems) {
+  Widget _previewWidget(BuildContext context) {
     final feedItem = feedItems.first; // 첫 번째 FeedItem만 보이도록 설정
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: Colors.pink,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
+    return SingleChildScrollView(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
         ),
-      ),
-      child: Column(
-        children: <Widget>[
-          Container(
-            width: 40,
-            height: 6,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Container(
+              width: 40,
+              height: 6,
+              decoration: BoxDecoration(
+                color: Colors.grey,
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Drag Me',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+            const SizedBox(height: 8),
+            ListTile(
+              leading: CircleAvatar(
+                backgroundImage: AssetImage(feedItem.profileImageUrl),
+              ),
+              title: Text(feedItem.username),
             ),
-          ),
-          SizedBox(height: 16),
-          Container(
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                Text(
-                  feedItem.username,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 8.0),
-                Image.asset(
-                  feedItem.imageUrl,
-                  fit: BoxFit.cover,
-                ),
-                SizedBox(height: 8.0),
-                Text(feedItem.caption),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

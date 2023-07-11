@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:madcamp_week_2/feed_item.dart';
+import 'package:madcamp_week_2/my_feed_item.dart';
 
 import 'add_screen.dart';
 import 'feed_screen.dart';
@@ -21,7 +22,7 @@ class _MyAppState extends State<MyApp> {
     SearchScreen(feedItems: feedItems),
     FeedScreen(feedItems: feedItems),
     AddScreen(),
-    ProfileScreen(),
+    ProfileScreen(myfeedItems: myfeedItems),
   ];
 
   void _onItemTapped(int index) {
@@ -38,10 +39,11 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.grey,
       ),
       home: Scaffold(
+        backgroundColor: Colors.grey,
         appBar: null,
         body: _screens[_selectedIndex],
         bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.grey,
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
           items: [
