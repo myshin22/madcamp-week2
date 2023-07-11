@@ -25,13 +25,13 @@ class _NavigationPageState extends State<NavigationPage> {
     );
     final destinations = [
       NavigationDestination(
-        icon: const Icon(Icons.search),
+        icon: const Icon(Icons.location_on),
         selectedIcon: Icon(Icons.location_on,
             color: Theme.of(context).colorScheme.primary),
         label: '주변',
       ),
       NavigationDestination(
-          icon: const Icon(Icons.bookmark_outline),
+          icon: const Icon(Icons.search),
           selectedIcon:
               Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
           label: '탐색'),
