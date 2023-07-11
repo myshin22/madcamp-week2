@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:week2/page/login.page.dart';
-import 'package:week2/page/profile.page.dart';
-import 'package:week2/page/sample.page.dart';
+import 'package:week2/page/feed_page.dart';
+import 'package:week2/page/login_page.dart';
+import 'package:week2/page/profile_page.dart';
+import 'package:week2/page/sample_page.dart';
+import 'package:week2/page/search_page.dart';
 
 class NavigationPage extends StatefulWidget {
   const NavigationPage({super.key});
@@ -45,15 +47,13 @@ class _NavigationPageState extends State<NavigationPage> {
         label: '프로필',
       ),
       developerDestination,
-      developerDestination
     ];
     final body = [
+      const SearchPage(),
+      const FeedPage(),
       const SamplePage(),
-      const SamplePage(),
-      const SamplePage(),
-      const SamplePage(),
-      const LoginPage(),
       const ProfilePage(),
+      const LoginPage(),
     ];
     return Scaffold(
       bottomNavigationBar: NavigationBar(
