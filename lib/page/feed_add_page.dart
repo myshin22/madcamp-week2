@@ -1,9 +1,12 @@
 import 'dart:io';
 
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:week2/api/feed_server.dart';
+import 'package:week2/api/google_auth.dart';
 import 'package:week2/api/util_server.dart';
 
 class FeedAddPage extends StatefulWidget {
@@ -17,6 +20,7 @@ class _FeedAddPageState extends State<FeedAddPage> {
   final textController = TextEditingController();
   String? location;
   List<File> selectedImages = []; //선택한 이미지 목록
+  int activeIndex = 0;
 
   Future<void> openGallery(BuildContext context) async {
     List<XFile>? resultList = await ImagePicker().pickMultiImage(
@@ -38,30 +42,82 @@ class _FeedAddPageState extends State<FeedAddPage> {
     super.dispose();
   }
 
+  Widget indicator() => Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      alignment: Alignment.bottomCenter,
+      child: AnimatedSmoothIndicator(
+        activeIndex: activeIndex,
+        count: selectedImages.length,
+        effect: JumpingDotEffect(
+            dotHeight: 8,
+            dotWidth: 8,
+            activeDotColor: Theme.of(context)
+                .primaryColor
+                .withOpacity(0.8), // Colors.white,
+            dotColor: Colors.white.withOpacity(0.6)),
+      ));
+
   @override
   Widget build(BuildContext context) {
     final imageWidget = selectedImages.isNotEmpty
-        ? PageView.builder(
-            itemCount: selectedImages.length,
-            itemBuilder: (context, index) {
-              return Image.file(selectedImages[index], fit: BoxFit.cover);
-            })
+        ? Stack(alignment: Alignment.bottomCenter, children: <Widget>[
+            CarouselSlider.builder(
+              options: CarouselOptions(
+                aspectRatio: 1,
+                initialPage: 0,
+                viewportFraction: 1,
+                enlargeCenterPage: true,
+                enableInfiniteScroll: selectedImages.length > 1,
+                onPageChanged: (index, reason) => setState(() {
+                  activeIndex = index;
+                }),
+              ),
+              itemCount: selectedImages.length,
+              itemBuilder: (context, index, realIndex) {
+                return ClipRRect(
+                    borderRadius: BorderRadius.circular(24), // Image border
+                    child: Container(
+                      width: double.infinity,
+                      child:
+                          Image.file(selectedImages[index], fit: BoxFit.cover),
+                    ));
+              },
+            ),
+            if (selectedImages.length > 1 && selectedImages.length <= 15)
+              Align(alignment: Alignment.bottomCenter, child: indicator())
+          ])
         : ElevatedButton(
-            child: const Icon(Icons.image_search, size: 48),
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24), // <-- Radius
+              ),
+            ),
+            child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: 24),
+                  Icon(Icons.image_search, size: 48),
+                  SizedBox(height: 8),
+                  Text("음식/가게 사진 첨부")
+                ]),
             onPressed: () {
               openGallery(context);
             },
           );
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           '피드 작성',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
         ),
         centerTitle: true,
         actions: <Widget>[
-          IconButton(
-              icon: const Icon(Icons.upload_outlined), onPressed: uploadFeed),
+          Padding(
+              padding: EdgeInsets.only(right: 16),
+              child: IconButton(
+                  icon: const Icon(Icons.upload_outlined),
+                  onPressed: uploadFeed)),
         ],
       ),
       body: SingleChildScrollView(
@@ -69,10 +125,17 @@ class _FeedAddPageState extends State<FeedAddPage> {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
-              AspectRatio(aspectRatio: 1, child: imageWidget),
+              SizedBox(height: 48),
+              Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: AspectRatio(aspectRatio: 1, child: imageWidget)),
+              SizedBox(height: 16),
               ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
                 icon: const Icon(Icons.location_on),
-                label: Text(location ?? '맛집 선택'),
+                label: Text(location ?? '장소 선택'),
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -84,6 +147,7 @@ class _FeedAddPageState extends State<FeedAddPage> {
                   });
                 },
               ),
+              SizedBox(height: 16),
               TextFormField(
                   controller: textController,
                   decoration: const InputDecoration(
@@ -91,6 +155,8 @@ class _FeedAddPageState extends State<FeedAddPage> {
                     border: OutlineInputBorder(),
                   ),
                   maxLength: 200,
+                  minLines: 3,
+                  maxLines: 5,
                   validator: (String? value) {
                     if (value == null) {
                       return "글을 입력해주세요";
@@ -109,12 +175,27 @@ class _FeedAddPageState extends State<FeedAddPage> {
   }
 
   void uploadFeed() async {
-    if (selectedImages.isNotEmpty && textController.text.length >= 10) {
-      final photo = await uploadImage(selectedImages[0]);
-      final post =
-      await createPost("googlegoogle", photo, textController.text, []);
-      Fluttertoast.showToast(msg: post.photo);
+    if (selectedImages.isEmpty) {
+      Fluttertoast.showToast(msg: "음식이나 가게 사진을 첨부해주세요");
+      return;
     }
+    if (location != null) {
+      Fluttertoast.showToast(msg: "장소를 선택해주세요");
+      return;
+    }
+    if (textController.text.length < 10) {
+      Fluttertoast.showToast(msg: "이유를 10자 이상 작성해주세요");
+      return;
+    }
+    var googleId = googleAuth.currentUser?.id;
+    if (googleId != null) {
+      Fluttertoast.showToast(msg: "로그인해주세요");
+      return;
+    }
+    final photo = await uploadImage(selectedImages[0]);
+    final post = await createPost(googleId!, photo, textController.text, []);
+    Fluttertoast.showToast(msg: post.photo);
+    Navigator.pop(context);
   }
 }
 
