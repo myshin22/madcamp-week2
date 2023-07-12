@@ -17,14 +17,11 @@ class FeedProfile {
 
   factory FeedProfile.fromJson(Map<String, dynamic> json) {
     return FeedProfile(
-      id: json['id'],
-      photo: json['photo'],
-      content: json['content'],
-      author: UserProfile.fromJson(json['author']),
-      taggedUsers: json['taggedUsers']
-          .map<UserProfile>((user) => UserProfile.fromJson(user))
-          .toList(),
-    );
+        id: json['id'],
+        photo: json['photo'],
+        content: json['content'],
+        author: UserProfile.fromJson(json['author']),
+        taggedUsers: UserProfile.listFromJson(json['taggedUsers']));
   }
 
   static List<FeedProfile> listFromJson(json) {
