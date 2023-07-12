@@ -1,9 +1,11 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:week2/api/bookmark_server.dart';
+import 'package:week2/api/google_auth.dart';
+import 'package:week2/model/userProfile_model.dart';
 import 'package:week2/page/profile_settings_page.dart';
 
 class NewProfilePage extends StatefulWidget {
@@ -17,15 +19,26 @@ class _NewProfilePageState extends State<NewProfilePage> {
   final double coverHeight = 240;
   final double profileHeight = 144;
   final ImagePicker _picker = ImagePicker();
-  XFile? _imageFile;
+  late Future<UserProfile>? userProfile;
   GoogleSignInAccount? user;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = googleAuth.currentUser;
+    if (user != null) {
+      userProfile = getUser(user.id);
+    } else {
+      Fluttertoast.showToast(msg: "로그인해주세요");
+    }
+  }
 
   void _openImagePicker() async {
     final XFile? selectedImage =
         await _picker.pickImage(source: ImageSource.gallery);
     if (selectedImage != null) {
       setState(() {
-        _imageFile = selectedImage;
+        selectedImage;
       });
     }
   }
@@ -49,41 +62,36 @@ class _NewProfilePageState extends State<NewProfilePage> {
     );
   }
 
-  Widget buildCoverImage() => Container(
+  Widget buildCoverImage(UserProfile snapshot) => Container(
         color: Colors.grey,
         child: Image.network(
-          'https://images.pexels.com/photos/3186654/pexels-photo-3186654.jpeg',
+          snapshot.coverPhoto,
           width: double.infinity,
           height: coverHeight,
           fit: BoxFit.cover,
         ),
       );
 
-  Widget _profile() {
+  Widget _profile(UserProfile snapshot) {
     return GestureDetector(
       onTap: _openImagePicker,
       child: CircleAvatar(
         radius: profileHeight / 2,
         backgroundColor: Colors.grey,
-        backgroundImage: _imageFile != null
-            ? FileImage(File(_imageFile!.path)) as ImageProvider<Object>?
-            : (user?.photoUrl != null
-                ? NetworkImage(user!.photoUrl as String)
-                    as ImageProvider<Object>?
-                : null),
+        backgroundImage: NetworkImage(snapshot.profilePhoto),
       ),
     );
   }
 
-  Widget buildin() {
+  Widget buildin(UserProfile snapshot) {
     return Stack(
       children: [
-        buildCoverImage(),
+        buildCoverImage(snapshot),
         Positioned(
           top: coverHeight / 2 - profileHeight / 2, // Adjust position as needed
           left: 0,
           right: 0,
-          child: _profile(),
+          child: _profile(snapshot),
         ),
       ],
     );
@@ -98,19 +106,19 @@ class _NewProfilePageState extends State<NewProfilePage> {
     return Container();
   }
 
-  Widget _menu() {
+  Widget _menu(UserProfile snapshot) {
     return Column(
       children: [
         SizedBox(
           height: 8,
         ),
-        Text(user?.displayName ?? user?.email ?? "",
+        Text(snapshot.name,
             style: TextStyle(fontSize: 28, fontWeight: FontWeight.w500)),
         SizedBox(
           height: 8,
         ),
         Text(
-          '파스타를 좋아하는 미식가',
+          snapshot.explanation,
           style: TextStyle(fontSize: 18, height: 1.4),
         ),
         SizedBox(
@@ -209,29 +217,60 @@ class _NewProfilePageState extends State<NewProfilePage> {
           ),
         ),
         actions: [
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                  MaterialPageRoute(
-                      builder: (context) => ProfileSettingsPage()));
-            },
-            child: Icon(
-              Icons.settings, // Updated from ImageData(IconsPath.uploadIcon)
-              size: 24,
-            ),
-          ),
+          Padding(
+              padding: EdgeInsets.only(),
+              child: IconButton(
+                  icon: const Icon(Icons.developer_mode, size: 24),
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext ctx) {
+                          return TextButton(
+                              onPressed: () {},
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    Text(googleAuth.currentUser.toString()),
+                                    Text(userProfile.toString())
+                                  ],
+                                ),
+                              ));
+                        });
+                  })),
+          Padding(
+              padding: EdgeInsets.only(),
+              child: IconButton(
+                  icon: const Icon(Icons.logout, size: 24),
+                  onPressed: googleAuth.signOut)),
+          Padding(
+              padding: EdgeInsets.only(right: 16),
+              child: IconButton(
+                  icon: const Icon(Icons.upload_outlined),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ProfileSettingsPage()));
+                  }))
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            buildCoverImage(),
-            _profile(),
-            _menu(),
-            _tabView(),
-          ],
-        ),
+      body: FutureBuilder<UserProfile>(
+        future: userProfile,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return SingleChildScrollView(
+                child: Column(children: [
+              buildCoverImage(snapshot.data!),
+              _profile(snapshot.data!),
+              _menu(snapshot.data!),
+              _tabView(),
+            ]));
+          } else if (snapshot.hasError) {
+            return Text('${snapshot.error}');
+          }
+          // By default, show a loading spinner.
+          return const CircularProgressIndicator();
+        },
       ),
     );
   }

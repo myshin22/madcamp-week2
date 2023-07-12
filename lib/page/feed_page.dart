@@ -16,7 +16,7 @@ class _FeedPageState extends State<FeedPage> {
   late final List<FeedItem> feedItems;
 
   @override
-  initState() {
+  initState() async {
     feedItems = MockFeedItem.getFeedItems();
   }
 

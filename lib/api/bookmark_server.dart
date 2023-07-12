@@ -24,15 +24,21 @@ Future<UserProfile> createUser(
   return UserProfile.fromJson(bodyJson);
 }
 
-Future<UserProfile> updateUser(
-    String googleId,
-    String name,
-    String profilePhoto,
-    String coverPhoto,
-    String explanation,
-    String instagramId,
-    String facebookId,
-    String twitterId) async {
+Future<UserProfile> getUser(String googleId) async {
+  final bodyJson = await fetchPost("user/update", {
+    'googleId': googleId,
+  });
+  return UserProfile.fromJson(bodyJson);
+}
+
+Future<UserProfile> updateUser(String googleId,
+    String? name,
+    String? profilePhoto,
+    String? coverPhoto,
+    String? explanation,
+    String? instagramId,
+    String? facebookId,
+    String? twitterId) async {
   final bodyJson = await fetchPost("user/update", {
     'googleId': googleId,
     "name": name,

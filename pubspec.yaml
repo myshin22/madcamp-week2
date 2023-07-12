@@ -35,7 +35,7 @@ dependencies:
   sliding_up_panel: ^2.0.0+1
   draggable_bottom_sheet: ^1.0.2
   provider: ^6.0.5
-  url_launcher: ^6.0.3
+  url_launcher: ^6.1.12
   sqflite: ^2.0.0
   image_picker: ^1.0.0
   multi_image_picker: ^4.8.1

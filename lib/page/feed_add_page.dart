@@ -6,8 +6,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:week2/api/feed_server.dart';
-import 'package:week2/api/google_auth.dart';
 import 'package:week2/api/util_server.dart';
+
+import '../api/google_auth.dart';
 
 class FeedAddPage extends StatefulWidget {
   const FeedAddPage({super.key});
@@ -104,7 +105,6 @@ class _FeedAddPageState extends State<FeedAddPage> {
               openGallery(context);
             },
           );
-
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -131,9 +131,6 @@ class _FeedAddPageState extends State<FeedAddPage> {
                   child: AspectRatio(aspectRatio: 1, child: imageWidget)),
               SizedBox(height: 16),
               ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
                 icon: const Icon(Icons.location_on),
                 label: Text(location ?? '장소 선택'),
                 onPressed: () {
@@ -155,8 +152,6 @@ class _FeedAddPageState extends State<FeedAddPage> {
                     border: OutlineInputBorder(),
                   ),
                   maxLength: 200,
-                  minLines: 3,
-                  maxLines: 5,
                   validator: (String? value) {
                     if (value == null) {
                       return "글을 입력해주세요";
@@ -179,7 +174,7 @@ class _FeedAddPageState extends State<FeedAddPage> {
       Fluttertoast.showToast(msg: "음식이나 가게 사진을 첨부해주세요");
       return;
     }
-    if (location != null) {
+    if (location == null) {
       Fluttertoast.showToast(msg: "장소를 선택해주세요");
       return;
     }
@@ -187,15 +182,14 @@ class _FeedAddPageState extends State<FeedAddPage> {
       Fluttertoast.showToast(msg: "이유를 10자 이상 작성해주세요");
       return;
     }
-    var googleId = googleAuth.currentUser?.id;
-    if (googleId != null) {
+    if (googleAuth.currentUser == null) {
       Fluttertoast.showToast(msg: "로그인해주세요");
       return;
     }
+    final googleId = googleAuth.currentUser!.id;
     final photo = await uploadImage(selectedImages[0]);
-    final post = await createPost(googleId!, photo, textController.text, []);
+    final post = await createPost(googleId, photo, textController.text, []);
     Fluttertoast.showToast(msg: post.photo);
-    Navigator.pop(context);
   }
 }
 

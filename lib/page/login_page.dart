@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:week2/api/bookmark_server.dart';
 import 'package:week2/api/google_auth.dart';
+import 'package:week2/api/mock_string.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -20,7 +23,22 @@ class LoginPage extends StatelessWidget {
               height: 16,
             ),
             ElevatedButton.icon(
-              onPressed: googleAuth.signIn,
+              onPressed: () async {
+                await googleAuth.signIn();
+                if (googleAuth.currentUser != null) {
+                  final user = googleAuth.currentUser!;
+                  await createUser(
+                      user.id,
+                      user.displayName ?? user.email,
+                      user.photoUrl ?? MockString.getFoodPhoto(),
+                      user.photoUrl ?? MockString.getCoverPhoto(),
+                      "파스타를 좋아하는 ${user.displayName}",
+                      "",
+                      "",
+                      "");
+                  Fluttertoast.showToast(msg: user.id ?? "None");
+                }
+              },
               icon: const FaIcon(
                 FontAwesomeIcons.google,
                 size: 18,

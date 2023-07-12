@@ -5,6 +5,8 @@ import 'package:week2/page/login_page.dart';
 import 'package:week2/page/profile_page.dart';
 import 'package:week2/page/search_page.dart';
 
+import 'auth_page.dart';
+
 class NavigationPage extends StatefulWidget {
   const NavigationPage({super.key});
 
@@ -48,6 +50,7 @@ class _NavigationPageState extends State<NavigationPage> {
       ),
       developerDestination,
       developerDestination,
+      developerDestination,
     ];
     final body = [
       const SearchPage(),
@@ -56,6 +59,7 @@ class _NavigationPageState extends State<NavigationPage> {
       const NewProfilePage(),
       const LoginPage(),
       const FeedPage(),
+      AuthPage(),
     ];
     return Scaffold(
       bottomNavigationBar: NavigationBar(
