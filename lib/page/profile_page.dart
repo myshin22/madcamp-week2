@@ -75,20 +75,6 @@ class _NewProfilePageState extends State<NewProfilePage> {
     );
   }
 
-  Widget buildin() {
-    return Stack(
-      children: [
-        buildCoverImage(),
-        Positioned(
-          top: coverHeight / 2 - profileHeight / 2, // Adjust position as needed
-          left: 0,
-          right: 0,
-          child: _profile(),
-        ),
-      ],
-    );
-  }
-
   Widget buildSocialIcon(IconData iconData) {
     return Icon(iconData);
   }

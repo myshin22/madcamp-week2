@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:week2/api/google_auth.dart';
 import 'package:week2/page/feed_add_page.dart';
 import 'package:week2/page/feed_page.dart';
 import 'package:week2/page/login_page.dart';
@@ -14,6 +15,22 @@ class NavigationPage extends StatefulWidget {
 
 class _NavigationPageState extends State<NavigationPage> {
   int currentPageIndex = 0;
+  String? googleId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGoogleId();
+  }
+
+  Future<void> _loadGoogleId() async {
+    if (googleAuth.currentUser == null) {
+      return;
+    }
+    setState(() {
+      googleId = googleAuth.currentUser!.id;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,11 +68,10 @@ class _NavigationPageState extends State<NavigationPage> {
     ];
     final body = [
       const SearchPage(),
-      const FeedPage(),
+      FeedPage(googleId: googleId ?? ''),
       const FeedAddPage(),
       const NewProfilePage(),
       const LoginPage(),
-      const FeedPage(),
     ];
     return Scaffold(
       bottomNavigationBar: NavigationBar(

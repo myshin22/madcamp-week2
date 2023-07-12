@@ -1,5 +1,6 @@
 import 'package:draggable_bottom_sheet/draggable_bottom_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:week2/api/google_auth.dart';
 import 'package:week2/api/mock_feed_item.dart';
 import 'package:week2/page/feed_page.dart';
 
@@ -14,10 +15,13 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   late final List<FeedItem> feedItems;
+  String googleId = '';
 
   @override
   initState() {
     feedItems = MockFeedItem.getFeedItems();
+    super.initState();
+    _loadGoogleId();
   }
 
   @override
@@ -103,7 +107,16 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
+  Future<void> _loadGoogleId() async {
+    if (googleAuth.currentUser == null) {
+      return;
+    }
+    setState(() {
+      googleId = googleAuth.currentUser!.id;
+    });
+  }
+
   Widget _expandedWidget(List<FeedItem> feedItems) {
-    return FeedPage();
+    return FeedPage(googleId: googleId);
   }
 }
