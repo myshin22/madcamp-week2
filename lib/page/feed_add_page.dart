@@ -1,7 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:week2/api/feed_server.dart';
+import 'package:week2/api/util_server.dart';
 
 class FeedAddPage extends StatefulWidget {
   const FeedAddPage({super.key});
@@ -11,97 +14,107 @@ class FeedAddPage extends StatefulWidget {
 }
 
 class _FeedAddPageState extends State<FeedAddPage> {
+  final textController = TextEditingController();
   String? location;
-  String description = '';
-  List<XFile>? selectedImages; //선택한 이미지 목록
+  List<File> selectedImages = []; //선택한 이미지 목록
 
   Future<void> openGallery(BuildContext context) async {
-    try {
-      List<XFile>? resultList = await ImagePicker().pickMultiImage(
-        maxWidth: 1920,
-        maxHeight: 1080,
-        imageQuality: 90,
-      );
-      if (resultList != null) {
-        setState(() {
-          selectedImages = resultList;
-        });
+    List<XFile>? resultList = await ImagePicker().pickMultiImage(
+      maxWidth: 1920,
+      maxHeight: 1080,
+      imageQuality: 90,
+    );
+    setState(() {
+      if (resultList.isNotEmpty) {
+        selectedImages = resultList.map((r) => File(r.path)).toList();
       }
-    } catch (e) {
-      // 예외 처리
-    }
+    });
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    textController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final imageWidget = selectedImages.isNotEmpty
+        ? PageView.builder(
+            itemCount: selectedImages.length,
+            itemBuilder: (context, index) {
+              return Image.file(selectedImages[index], fit: BoxFit.cover);
+            })
+        : ElevatedButton(
+            child: const Icon(Icons.image_search, size: 48),
+            onPressed: () {
+              openGallery(context);
+            },
+          );
     return Scaffold(
       appBar: AppBar(
-        title: Text('글쓰기'),
+        title: const Text(
+          '피드 작성',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+        ),
+        centerTitle: true,
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.upload_outlined),
-            onPressed: () {
-              //서버 상에 업로드 되도록 해야 함.
-            },
-          ),
+              icon: const Icon(Icons.upload_outlined), onPressed: uploadFeed),
         ],
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
-            children: <Widget>[
-              AspectRatio(
-                aspectRatio: 1,
-                child: selectedImages != null && selectedImages!.isNotEmpty
-                    ? PageView.builder(
-                        itemCount: selectedImages!.length,
-                        itemBuilder: (context, index) {
-                          return Image.file(
-                            File(selectedImages![index].path),
-                            fit: BoxFit.cover,
-                          );
-                        },
-                      )
-                    : ElevatedButton(
-                        child: Icon(Icons.image, size: 128),
-                        onPressed: () {
-                          openGallery(context);
-                        },
-                      ),
-              ),
+            children: [
+              AspectRatio(aspectRatio: 1, child: imageWidget),
               ElevatedButton.icon(
-                icon: Icon(Icons.location_on),
+                icon: const Icon(Icons.location_on),
                 label: Text(location ?? '맛집 선택'),
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => FeedAddPlacePage()),
-                  ).then((selectedLoction) {
+                  ).then((selectedLocation) {
                     setState(() {
-                      location = selectedLoction;
+                      location = selectedLocation;
                     });
                   });
                 },
               ),
               TextFormField(
-                decoration: InputDecoration(
-                  hintText: '이 맛집은 어떤 점이 좋았나요?',
-                  border: OutlineInputBorder(),
-                ),
-                minLines: 3,
-                maxLines: 5,
-                onChanged: (value) {
-                  setState(() {
-                    description = value;
-                  });
-                },
-              ),
+                  controller: textController,
+                  decoration: const InputDecoration(
+                    hintText: '맛집으로 추천하는 이유를 적어주세요',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLength: 200,
+                  validator: (String? value) {
+                    if (value == null) {
+                      return "글을 입력해주세요";
+                    } else if (10 > value.length) {
+                      return "10글자 이상 입력해주세요";
+                    } else if (200 < value.length) {
+                      return "200글자 이하로 입력해주세요";
+                    }
+                    return null;
+                  }),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void uploadFeed() async {
+    if (selectedImages.isNotEmpty && textController.text.length >= 10) {
+      final photo = await uploadImage(selectedImages[0]);
+      final post =
+      await createPost("googlegoogle", photo, textController.text, []);
+      Fluttertoast.showToast(msg: post.photo);
+    }
   }
 }
 
@@ -123,7 +136,7 @@ class FeedAddPlacePage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
             onPressed: () {
               //여기 네이버로 넘어가서 즐겨찾기 추가할 수 있도록
             },
